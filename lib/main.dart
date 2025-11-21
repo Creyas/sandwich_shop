@@ -3,6 +3,7 @@ import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/models/cart.dart';
 import 'package:sandwich_shop/repositories/pricing_repository.dart';
 import 'package:sandwich_shop/models/sandwich.dart';
+import 'package:sandwich_shop/views/cart_screen.dart';
 import 'package:intl/intl.dart';
 
 // Minimal in-file repository implementation to satisfy the undefined SandwichRepository reference.
@@ -272,93 +273,30 @@ class _OrderScreenState extends State<OrderScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Permanent cart summary display (grouped lines + totals)
+              // Compact cart summary and View Cart button
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 child: Card(
                   elevation: 2,
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Build grouped lines by sandwich name
-                        ...() {
-                          final Map<String, Map<String, dynamic>> grouped = {};
-                          for (final it in _cart.items) {
-                            final name = it.sandwich.name;
-                            final qty = it.quantity;
-                            final sizeLabel = it.sandwich.isFootlong
-                                ? 'Footlong'
-                                : 'Six-inch';
-                            final linePrice =
-                                _cart.pricingRepository.calculatePrice(
-                              it.sandwich,
-                              isFootlong: it.sandwich.isFootlong,
-                              quantity: qty,
-                            );
-
-                            // Use a combined key of name + size so footlong and six-inch are separate
-                            final keyName = '$name|$sizeLabel';
-                            if (!grouped.containsKey(keyName)) {
-                              grouped[keyName] = {
-                                'quantity': 0,
-                                'lineTotal': 0.0,
-                                'name': name,
-                                'sizeLabel': sizeLabel,
-                              };
-                            }
-                            grouped[keyName]!['quantity'] =
-                                (grouped[keyName]!['quantity'] as int) + qty;
-                            grouped[keyName]!['lineTotal'] =
-                                (grouped[keyName]!['lineTotal'] as double) +
-                                    linePrice;
-                          }
-
-                          if (grouped.isEmpty) {
-                            return [
-                              const Text('Cart is empty',
-                                  key: Key('cartEmpty')),
-                            ];
-                          }
-
-                          final List<Widget> lines = [];
-                          grouped.forEach((keyName, data) {
-                            final qty = data['quantity'] as int;
-                            final lineTotal = data['lineTotal'] as double;
-                            final name = data['name'] as String;
-                            final sizeLabel = data['sizeLabel'] as String;
-                            final safeKey =
-                                keyName.replaceAll(RegExp(r"\\s+|\\|"), '_');
-                            lines.add(Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                    child: Text('$qty $sizeLabel $name(s)',
-                                        key: Key('cart_line_${safeKey}_label'),
-                                        style: normalText)),
-                                Text(currencyFormat.format(lineTotal),
-                                    key: Key('cart_line_${safeKey}_price'),
-                                    style: normalText),
-                              ],
+                        Text('Items: ${_cart.itemCount}',
+                            key: const Key('cartItemCount'), style: normalText),
+                        Text(
+                            'Total: ${currencyFormat.format(_cart.totalPrice)}',
+                            key: const Key('cartTotalPrice'),
+                            style: normalText),
+                        ElevatedButton(
+                          key: const Key('viewCartButton'),
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) => CartScreen(cart: _cart),
                             ));
-                          });
-                          return lines;
-                        }(),
-
-                        const SizedBox(height: 8),
-                        const Divider(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Total items: ${_cart.itemCount}',
-                                key: const Key('cartTotalItems'),
-                                style: normalText),
-                            Text(
-                                'Order total: ${currencyFormat.format(_cart.totalPrice)}',
-                                key: const Key('cartOrderTotal'),
-                                style: normalText),
-                          ],
+                          },
+                          child: const Text('View Cart'),
                         ),
                       ],
                     ),
