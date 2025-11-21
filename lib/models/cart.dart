@@ -48,7 +48,8 @@ class Cart {
     } else {
       existing.quantity += quantity;
     }
-    _totalPrice += pricingRepository.calculatePrice(sandwich, isFootlong: sandwich.isFootlong, quantity: quantity);
+    _totalPrice += pricingRepository.calculatePrice(sandwich,
+        isFootlong: sandwich.isFootlong, quantity: quantity);
   }
 
   // Remove up to [quantity] of the sandwich from the cart.
@@ -64,7 +65,8 @@ class Cart {
     if (removeQty > existing.quantity) removeQty = existing.quantity;
 
     existing.quantity -= removeQty;
-    _totalPrice -= pricingRepository.calculatePrice(sandwich, isFootlong: sandwich.isFootlong, quantity: removeQty);
+    _totalPrice -= pricingRepository.calculatePrice(sandwich,
+        isFootlong: sandwich.isFootlong, quantity: removeQty);
 
     if (existing.quantity <= 0) {
       _items.remove(key);
@@ -79,8 +81,8 @@ class Cart {
     final key = _CartItemKey(sandwich);
     final existing = _items.remove(key);
     if (existing == null) return false;
-    _totalPrice -=
-        pricingRepository.calculatePrice(existing.sandwich, isFootlong: existing.sandwich.isFootlong, quantity: existing.quantity);
+    _totalPrice -= pricingRepository.calculatePrice(existing.sandwich,
+        isFootlong: existing.sandwich.isFootlong, quantity: existing.quantity);
     if (_totalPrice < 0) _totalPrice = 0.0;
     return true;
   }

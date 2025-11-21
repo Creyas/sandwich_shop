@@ -16,8 +16,8 @@ class FakePricingRepository implements PricingRepository {
   @override
   double calculatePrice(
     Sandwich sandwich, {
-    bool isFootlong = false,
-    int quantity = 1,
+    required int quantity,
+    required bool isFootlong,
   }) {
     final base = _base[sandwich.type] ?? 0.0;
     final sizeMultiplier = isFootlong ? 2.0 : 1.0;
