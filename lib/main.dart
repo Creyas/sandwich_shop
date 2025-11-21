@@ -4,6 +4,14 @@ import 'package:sandwich_shop/models/cart.dart';
 import 'package:sandwich_shop/repositories/pricing_repository.dart';
 import 'package:sandwich_shop/models/sandwich.dart';
 
+// Minimal in-file repository implementation to satisfy the undefined SandwichRepository reference.
+// This returns an empty catalog; replace with real data fetching when available.
+class SandwichRepository {
+  Future<List<Sandwich>> loadAll() {
+    return Future.value(<Sandwich>[]);
+  }
+}
+
 void main() {
   runApp(const App());
 }
@@ -32,6 +40,9 @@ class OrderScreen extends StatefulWidget {
 }
 
 class _OrderScreenState extends State<OrderScreen> {
+  final SandwichRepository _sandwichRepo = SandwichRepository();
+  late final Future<List<Sandwich>> _catalogFuture;
+
   final Cart _cart = Cart(pricingRepository: PricingRepository());
   final TextEditingController _notesController = TextEditingController();
 
@@ -39,10 +50,12 @@ class _OrderScreenState extends State<OrderScreen> {
   bool _isFootlong = true;
   BreadType _selectedBreadType = BreadType.white;
   int _quantity = 1;
+  Sandwich? _selectedCatalogItem;
 
   @override
   void initState() {
-      super.initState();
+    super.initState();
+    _catalogFuture = _sandwichRepo.loadAll();
     _notesController.addListener(() {
       setState(() {});
     });
@@ -76,7 +89,7 @@ class _OrderScreenState extends State<OrderScreen> {
           'Added $_quantity $sizeText ${sandwich.name} sandwich(es) on ${_selectedBreadType.name} bread to cart';
 
       debugPrint(confirmationMessage);
-      }
+    }
   }
 
   VoidCallback? _getAddToCartCallback() {
@@ -245,6 +258,73 @@ class _OrderScreenState extends State<OrderScreen> {
                 icon: Icons.add_shopping_cart,
                 label: 'Add to Cart',
                 backgroundColor: Colors.green,
+              ),
+              const SizedBox(height: 20),
+              FutureBuilder<List<Sandwich>>(
+                future: _catalogFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12.0),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  if (snapshot.hasError) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      child:
+                          Text('Failed to load sandwiches: ${snapshot.error}'),
+                    );
+                  }
+                  final items =
+                      (snapshot.data ?? []).where((s) => s.available).toList();
+                  if (items.isEmpty) {
+                    return const Text('No sandwiches available');
+                  }
+
+                  // ensure a selected item exists
+                  _selectedCatalogItem ??= items.first;
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      DropdownButton<Sandwich>(
+                        value: _selectedCatalogItem,
+                        isExpanded: true,
+                        items: items.map((s) {
+                          return DropdownMenuItem<Sandwich>(
+                            value: s,
+                            child: Text(s.name),
+                          );
+                        }).toList(),
+                        onChanged: (s) {
+                          setState(() {
+                            _selectedCatalogItem = s;
+                          });
+                        },
+                      ),
+                      // Add to cart button beneath dropdown
+                      Row(
+                        children: [
+                          ElevatedButton(
+                            onPressed: _selectedCatalogItem == null
+                                ? null
+                                : () {
+                                    final sandwich = _selectedCatalogItem!;
+                                    // add uses positional quantity by your current Cart API
+                                    setState(() {
+                                      _cart.add(sandwich, _quantity);
+                                    });
+                                  },
+                            child: const Text('Add to cart'),
+                          ),
+                          const SizedBox(width: 12),
+                          Text('Quantity: $_quantity'),
+                        ],
+                      ),
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 20),
             ],
