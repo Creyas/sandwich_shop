@@ -8,9 +8,9 @@ void main() {
     await tester
         .pumpWidget(const MaterialApp(home: OrderScreen(maxQuantity: 5)));
 
-    // initial state: empty cart shows totals with zero values
-    expect(find.text('Total items: 0'), findsOneWidget);
-    expect(find.text('Order total: £0.00'), findsOneWidget);
+    // initial state: compact summary shows zero values
+    expect(find.text('Items: 0'), findsOneWidget);
+    expect(find.text('Total: £0.00'), findsOneWidget);
 
     // Tap the Add to Cart button
     final addButton = find.text('Add to Cart');
@@ -19,10 +19,18 @@ void main() {
     await tester.pumpAndSettle();
 
     // After adding one default sandwich (footlong) PricingRepository uses 11.00 for footlong
+    // Compact summary should update to show item count and total
+    expect(find.text('Items: 1'), findsOneWidget);
+    expect(find.text('Total: £11.00'), findsOneWidget);
+
+    // Tap the View Cart button to show the full receipt
+    final viewCart = find.text('View Cart');
+    expect(viewCart, findsOneWidget);
+    await tester.tap(viewCart);
+    await tester.pumpAndSettle();
+
+    // Full cart screen should list the grouped line and totals
     expect(find.text('1 Footlong Veggie Delight(s)'), findsOneWidget);
-    // line price and order total
-    expect(find.text('£11.00'), findsWidgets);
-    expect(find.text('Total items: 1'), findsOneWidget);
     expect(find.text('Order total: £11.00'), findsOneWidget);
   });
 }
