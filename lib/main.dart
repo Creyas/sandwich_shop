@@ -3,6 +3,7 @@ import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/models/cart.dart';
 import 'package:sandwich_shop/repositories/pricing_repository.dart';
 import 'package:sandwich_shop/models/sandwich.dart';
+import 'package:intl/intl.dart';
 
 // Minimal in-file repository implementation to satisfy the undefined SandwichRepository reference.
 // This returns an empty catalog; replace with real data fetching when available.
@@ -89,6 +90,14 @@ class _OrderScreenState extends State<OrderScreen> {
           'Added $_quantity $sizeText ${sandwich.name} sandwich(es) on ${_selectedBreadType.name} bread to cart';
 
       debugPrint(confirmationMessage);
+      // Show a user-facing confirmation SnackBar in addition to logging.
+      ScaffoldMessenger.of(context).removeCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(confirmationMessage),
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
   }
 
@@ -179,6 +188,8 @@ class _OrderScreenState extends State<OrderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final NumberFormat currencyFormat =
+        NumberFormat.simpleCurrency(locale: 'en_GB');
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -260,6 +271,101 @@ class _OrderScreenState extends State<OrderScreen> {
                 backgroundColor: Colors.green,
               ),
               const SizedBox(height: 20),
+
+              // Permanent cart summary display (grouped lines + totals)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Card(
+                  elevation: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Build grouped lines by sandwich name
+                        ...() {
+                          final Map<String, Map<String, dynamic>> grouped = {};
+                          for (final it in _cart.items) {
+                            final name = it.sandwich.name;
+                            final qty = it.quantity;
+                            final sizeLabel = it.sandwich.isFootlong
+                                ? 'Footlong'
+                                : 'Six-inch';
+                            final linePrice =
+                                _cart.pricingRepository.calculatePrice(
+                              it.sandwich,
+                              isFootlong: it.sandwich.isFootlong,
+                              quantity: qty,
+                            );
+
+                            // Use a combined key of name + size so footlong and six-inch are separate
+                            final keyName = '$name|$sizeLabel';
+                            if (!grouped.containsKey(keyName)) {
+                              grouped[keyName] = {
+                                'quantity': 0,
+                                'lineTotal': 0.0,
+                                'name': name,
+                                'sizeLabel': sizeLabel,
+                              };
+                            }
+                            grouped[keyName]!['quantity'] =
+                                (grouped[keyName]!['quantity'] as int) + qty;
+                            grouped[keyName]!['lineTotal'] =
+                                (grouped[keyName]!['lineTotal'] as double) +
+                                    linePrice;
+                          }
+
+                          if (grouped.isEmpty) {
+                            return [
+                              const Text('Cart is empty',
+                                  key: Key('cartEmpty')),
+                            ];
+                          }
+
+                          final List<Widget> lines = [];
+                          grouped.forEach((keyName, data) {
+                            final qty = data['quantity'] as int;
+                            final lineTotal = data['lineTotal'] as double;
+                            final name = data['name'] as String;
+                            final sizeLabel = data['sizeLabel'] as String;
+                            final safeKey =
+                                keyName.replaceAll(RegExp(r"\\s+|\\|"), '_');
+                            lines.add(Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                    child: Text('$qty $sizeLabel $name(s)',
+                                        key: Key('cart_line_${safeKey}_label'),
+                                        style: normalText)),
+                                Text(currencyFormat.format(lineTotal),
+                                    key: Key('cart_line_${safeKey}_price'),
+                                    style: normalText),
+                              ],
+                            ));
+                          });
+                          return lines;
+                        }(),
+
+                        const SizedBox(height: 8),
+                        const Divider(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Total items: ${_cart.itemCount}',
+                                key: const Key('cartTotalItems'),
+                                style: normalText),
+                            Text(
+                                'Order total: ${currencyFormat.format(_cart.totalPrice)}',
+                                key: const Key('cartOrderTotal'),
+                                style: normalText),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
               FutureBuilder<List<Sandwich>>(
                 future: _catalogFuture,
                 builder: (context, snapshot) {
@@ -279,7 +385,9 @@ class _OrderScreenState extends State<OrderScreen> {
                   final items =
                       (snapshot.data ?? []).where((s) => s.available).toList();
                   if (items.isEmpty) {
-                    return const Text('No sandwiches available');
+                    // Hide the message when no catalog data is available.
+                    // Returning an empty widget keeps layout but shows nothing.
+                    return const SizedBox.shrink();
                   }
 
                   // ensure a selected item exists
