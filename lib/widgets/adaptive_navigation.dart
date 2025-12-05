@@ -189,7 +189,7 @@ class _MobileDrawerState extends State<_MobileDrawer> {
             onTap: () => _navigateToScreen(
               context,
               'About',
-              const AboutScreen(),
+              AboutScreen(cart: widget.cart),
             ),
           ),
           const Divider(),
@@ -268,7 +268,7 @@ class _DesktopNavigationRailState extends State<_DesktopNavigationRail> {
         break;
       case 2:
         screenName = 'About';
-        screen = const AboutScreen();
+        screen = AboutScreen(cart: widget.cart);
         break;
       default:
         return;

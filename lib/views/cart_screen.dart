@@ -117,18 +117,24 @@ class _CartScreenState extends State<CartScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
-                StyledButton(
+                ElevatedButton.icon(
                   onPressed: _navigateToCheckout,
-                  icon: Icons.payment,
-                  label: 'Checkout',
-                  backgroundColor: Colors.orange,
+                  icon: const Icon(Icons.payment),
+                  label: const Text('Checkout'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
                 const SizedBox(height: 20),
-                StyledButton(
+                ElevatedButton.icon(
                   onPressed: _goBack,
-                  icon: Icons.arrow_back,
-                  label: 'Back to Order',
-                  backgroundColor: Colors.grey,
+                  icon: const Icon(Icons.arrow_back),
+                  label: const Text('Back to Order'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
                 const SizedBox(height: 20),
               ],
@@ -136,7 +142,6 @@ class _CartScreenState extends State<CartScreen> {
       actions: widget.cart.isEmpty
           ? null
           : [
-              // Clear Cart button in AppBar
               TextButton.icon(
                 onPressed: _showClearCartDialog,
                 icon: const Icon(Icons.clear_all, color: Colors.white),

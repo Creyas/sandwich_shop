@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/base_scaffold.dart';
 import '../models/cart.dart';
+import 'app_styles.dart';
 
 class AboutScreen extends StatelessWidget {
   final Cart? cart;
@@ -21,26 +22,24 @@ class AboutScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Welcome to Sandwich Shop!', style: heading2),
-            SizedBox(height: 20),
             Text(
-              'We are a family-owned business dedicated to serving the best sandwiches in town. '
+              'About Sandwich Shop',
+              style: heading2.copyWith(fontSize: 28),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Welcome to our Sandwich Shop! We are a family-owned business dedicated to serving the best sandwiches in town.',
+              style: normalText,
+            ),
+            const SizedBox(height: 16),
+            Text(
               'Our commitment to quality ingredients and exceptional service makes us your go-to destination for delicious meals.',
               style: normalText,
             ),
-            const Text(
-              'About Sandwich Shop',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
             const SizedBox(height: 16),
-            const Text(
-              'Welcome to our Sandwich Shop! We serve delicious, freshly made sandwiches with quality ingredients.',
-              style: TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 16),
-            const Text(
+            Text(
               'Our mission is to provide the best sandwiches in town with friendly service and a smile.',
-              style: TextStyle(fontSize: 16),
+              style: normalText,
             ),
           ],
         ),

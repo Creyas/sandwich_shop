@@ -193,7 +193,7 @@ class _AppDrawerState extends State<AppDrawer> {
             onTap: () => _navigateToScreen(
               context,
               'About',
-              const AboutScreen(),
+              AboutScreen(cart: widget.cart),
             ),
           ),
 

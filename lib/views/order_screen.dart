@@ -340,39 +340,36 @@ class _OrderScreenState extends State<OrderScreen> {
 
 class StyledButton extends StatelessWidget {
   final VoidCallback? onPressed;
-
   final IconData icon;
-
   final String label;
-
   final Color backgroundColor;
 
-    super.key,Button({
+  const StyledButton({
+    super.key,
     required this.onPressed,
-    required this.icon,ssed,
+    required this.icon,
     required this.label,
     required this.backgroundColor,
-  });equired this.backgroundColor,
   });
+
   @override
   Widget build(BuildContext context) {
     ButtonStyle myButtonStyle = ElevatedButton.styleFrom(
-      backgroundColor: backgroundColor,dButton.styleFrom(
-      foregroundColor: Colors.white,or,
-      textStyle: normalText,s.white,
-    );textStyle: normalText,
+      backgroundColor: backgroundColor,
+      foregroundColor: Colors.white,
+      textStyle: normalText,
     );
+
     return ElevatedButton(
       onPressed: onPressed,
       style: myButtonStyle,
-      child: Row(ttonStyle,
+      child: Row(
         children: [
           Icon(icon),
           const SizedBox(width: 8),
-          Text(label),ox(width: 8),
-        ],Text(label),
-      ),],
-    );),
-  } );
-} }
+          Text(label),
+        ],
+      ),
+    );
+  }
 }
