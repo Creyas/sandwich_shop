@@ -35,6 +35,24 @@ class _AuthScreenState extends State<AuthScreen>
   String? _signInEmailError;
   String? _signInPasswordError;
 
+  // Sign Up controllers
+  final TextEditingController _signUpNameController = TextEditingController();
+  final TextEditingController _signUpEmailController = TextEditingController();
+  final TextEditingController _signUpPasswordController =
+      TextEditingController();
+  final TextEditingController _signUpConfirmPasswordController =
+      TextEditingController();
+  final TextEditingController _signUpPhoneController = TextEditingController();
+
+  // Sign Up state
+  bool _acceptedTerms = false;
+  bool _isSignUpLoading = false;
+  String? _signUpNameError;
+  String? _signUpEmailError;
+  String? _signUpPasswordError;
+  String? _signUpConfirmPasswordError;
+  String? _signUpPhoneError;
+
   @override
   void initState() {
     super.initState();
@@ -43,6 +61,13 @@ class _AuthScreenState extends State<AuthScreen>
     // Add listeners for real-time validation
     _signInEmailController.addListener(_validateSignInEmail);
     _signInPasswordController.addListener(_validateSignInPassword);
+
+    _signUpNameController.addListener(_validateSignUpName);
+    _signUpEmailController.addListener(_validateSignUpEmail);
+    _signUpPasswordController.addListener(_validateSignUpPassword);
+    _signUpConfirmPasswordController
+        .addListener(_validateSignUpConfirmPassword);
+    _signUpPhoneController.addListener(_validateSignUpPhone);
   }
 
   @override
@@ -50,6 +75,11 @@ class _AuthScreenState extends State<AuthScreen>
     _tabController.dispose();
     _signInEmailController.dispose();
     _signInPasswordController.dispose();
+    _signUpNameController.dispose();
+    _signUpEmailController.dispose();
+    _signUpPasswordController.dispose();
+    _signUpConfirmPasswordController.dispose();
+    _signUpPhoneController.dispose();
     super.dispose();
   }
 
@@ -200,6 +230,185 @@ class _AuthScreenState extends State<AuthScreen>
         ),
       );
     }
+  }
+
+  Future<void> _handleSignUp() async {
+    if (!_isSignUpFormValid) return;
+
+    setState(() {
+      _isSignUpLoading = true;
+    });
+
+    try {
+      final user = await _authService.signUp(
+        name: _signUpNameController.text.trim(),
+        email: _signUpEmailController.text.trim(),
+        password: _signUpPasswordController.text,
+        phoneNumber: _signUpPhoneController.text.trim().isEmpty
+            ? null
+            : _signUpPhoneController.text.trim(),
+      );
+
+      if (!mounted) return;
+
+      if (user != null) {
+        // Success - navigate to OrderScreen
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const OrderScreen()),
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                Text('Welcome, ${user.name}! Your account has been created.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        // Failed - show error
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('An account with this email already exists'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('An error occurred: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSignUpLoading = false;
+        });
+      }
+    }
+  }
+
+  void _showTermsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Terms & Conditions'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Terms of Service',
+                style: heading2.copyWith(fontSize: 18),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                '1. By creating an account, you agree to provide accurate information.\n\n'
+                '2. You are responsible for maintaining the confidentiality of your account.\n\n'
+                '3. We reserve the right to terminate accounts that violate our policies.\n\n'
+                '4. Your personal information will be handled according to our Privacy Policy.\n\n'
+                '5. You must be at least 13 years old to create an account.',
+                style: normalText,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Validation methods for Sign Up
+  void _validateSignUpName() {
+    setState(() {
+      if (_signUpNameController.text.isEmpty) {
+        _signUpNameError = null;
+      } else if (_signUpNameController.text.trim().length < 2) {
+        _signUpNameError = 'Name must be at least 2 characters';
+      } else {
+        _signUpNameError = null;
+      }
+    });
+  }
+
+  void _validateSignUpEmail() {
+    setState(() {
+      if (_signUpEmailController.text.isEmpty) {
+        _signUpEmailError = null;
+      } else if (!_authService.isEmailValid(_signUpEmailController.text)) {
+        _signUpEmailError = 'Please enter a valid email address';
+      } else {
+        _signUpEmailError = null;
+      }
+    });
+  }
+
+  void _validateSignUpPassword() {
+    setState(() {
+      if (_signUpPasswordController.text.isEmpty) {
+        _signUpPasswordError = null;
+      } else if (!_authService
+          .isPasswordValid(_signUpPasswordController.text)) {
+        _signUpPasswordError =
+            'Password must be 8+ chars, 1 uppercase, 1 number';
+      } else {
+        _signUpPasswordError = null;
+      }
+      // Also revalidate confirm password when password changes
+      _validateSignUpConfirmPassword();
+    });
+  }
+
+  void _validateSignUpConfirmPassword() {
+    setState(() {
+      if (_signUpConfirmPasswordController.text.isEmpty) {
+        _signUpConfirmPasswordError = null;
+      } else if (_signUpConfirmPasswordController.text !=
+          _signUpPasswordController.text) {
+        _signUpConfirmPasswordError = 'Passwords do not match';
+      } else {
+        _signUpConfirmPasswordError = null;
+      }
+    });
+  }
+
+  void _validateSignUpPhone() {
+    setState(() {
+      final phone = _signUpPhoneController.text.trim();
+      if (phone.isEmpty) {
+        _signUpPhoneError = null;
+      } else if (phone.length < 10) {
+        _signUpPhoneError = 'Please enter a valid phone number';
+      } else {
+        _signUpPhoneError = null;
+      }
+    });
+  }
+
+  bool get _isSignUpFormValid {
+    return _signUpNameController.text.trim().isNotEmpty &&
+        _signUpEmailController.text.isNotEmpty &&
+        _signUpPasswordController.text.isNotEmpty &&
+        _signUpConfirmPasswordController.text.isNotEmpty &&
+        _signUpNameError == null &&
+        _signUpEmailError == null &&
+        _signUpPasswordError == null &&
+        _signUpConfirmPasswordError == null &&
+        _signUpPhoneError == null &&
+        _authService.isEmailValid(_signUpEmailController.text) &&
+        _authService.isPasswordValid(_signUpPasswordController.text) &&
+        _signUpPasswordController.text ==
+            _signUpConfirmPasswordController.text &&
+        _acceptedTerms;
   }
 
   @override
@@ -379,9 +588,221 @@ class _AuthScreenState extends State<AuthScreen>
   }
 
   Widget _buildSignUpTab() {
-    // Placeholder for Sign Up tab - will be implemented in next subtask
-    return const Center(
-      child: Text('Sign Up form coming next...'),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Create Account',
+            style: heading2,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Sign up to start ordering',
+            style: normalText.copyWith(color: Colors.grey),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
+
+          // Full Name field
+          CustomTextField(
+            label: 'Full Name',
+            hint: 'Enter your full name',
+            controller: _signUpNameController,
+            keyboardType: TextInputType.name,
+            prefixIcon: Icons.person_outline,
+            errorText: _signUpNameError,
+            autofocus: false,
+          ),
+          const SizedBox(height: 16),
+
+          // Email field
+          CustomTextField(
+            label: 'Email',
+            hint: 'Enter your email',
+            controller: _signUpEmailController,
+            keyboardType: TextInputType.emailAddress,
+            prefixIcon: Icons.email_outlined,
+            errorText: _signUpEmailError,
+          ),
+          const SizedBox(height: 16),
+
+          // Password field
+          CustomTextField(
+            label: 'Password',
+            hint: 'Create a password',
+            controller: _signUpPasswordController,
+            isPassword: true,
+            prefixIcon: Icons.lock_outline,
+            errorText: _signUpPasswordError,
+          ),
+          const SizedBox(height: 8),
+
+          // Password requirements
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Password must contain:',
+                  style: normalText.copyWith(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                _buildPasswordRequirement(
+                  'At least 8 characters',
+                  _signUpPasswordController.text.length >= 8,
+                ),
+                _buildPasswordRequirement(
+                  'At least one uppercase letter',
+                  _signUpPasswordController.text.contains(RegExp(r'[A-Z]')),
+                ),
+                _buildPasswordRequirement(
+                  'At least one number',
+                  _signUpPasswordController.text.contains(RegExp(r'[0-9]')),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Confirm Password field
+          CustomTextField(
+            label: 'Confirm Password',
+            hint: 'Re-enter your password',
+            controller: _signUpConfirmPasswordController,
+            isPassword: true,
+            prefixIcon: Icons.lock_outline,
+            errorText: _signUpConfirmPasswordError,
+          ),
+          const SizedBox(height: 16),
+
+          // Phone Number field (optional)
+          CustomTextField(
+            label: 'Phone Number (Optional)',
+            hint: 'Enter your phone number',
+            controller: _signUpPhoneController,
+            keyboardType: TextInputType.phone,
+            prefixIcon: Icons.phone_outlined,
+            errorText: _signUpPhoneError,
+          ),
+          const SizedBox(height: 20),
+
+          // Terms and Conditions checkbox
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Checkbox(
+                value: _acceptedTerms,
+                onChanged: (value) {
+                  setState(() {
+                    _acceptedTerms = value ?? false;
+                  });
+                },
+                activeColor: Colors.orange,
+              ),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _acceptedTerms = !_acceptedTerms;
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: RichText(
+                      text: TextSpan(
+                        style: normalText.copyWith(fontSize: 14),
+                        children: [
+                          const TextSpan(text: 'I agree to the '),
+                          WidgetSpan(
+                            child: GestureDetector(
+                              onTap: _showTermsDialog,
+                              child: Text(
+                                'Terms & Conditions',
+                                style: normalText.copyWith(
+                                  color: Colors.orange,
+                                  decoration: TextDecoration.underline,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // Sign Up button
+          CustomButton(
+            text: 'Sign Up',
+            onPressed: _isSignUpFormValid ? _handleSignUp : null,
+            isLoading: _isSignUpLoading,
+          ),
+          const SizedBox(height: 16),
+
+          // Switch to Sign In
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Already have an account? ',
+                style: normalText,
+              ),
+              TextButton(
+                onPressed: () {
+                  _tabController.animateTo(0);
+                },
+                child: Text(
+                  'Sign In',
+                  style: normalText.copyWith(
+                    color: Colors.orange,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPasswordRequirement(String text, bool isMet) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          Icon(
+            isMet ? Icons.check_circle : Icons.circle_outlined,
+            size: 16,
+            color: isMet ? Colors.green : Colors.grey,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            text,
+            style: normalText.copyWith(
+              fontSize: 13,
+              color: isMet ? Colors.green.shade700 : Colors.grey.shade700,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
