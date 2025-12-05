@@ -169,7 +169,7 @@ class _MobileDrawerState extends State<_MobileDrawer> {
                     backgroundColor: Colors.orange,
                     radius: 12,
                     child: Text(
-                      '${widget.cart.totalQuantity}',
+                      '${widget.cart.countOfItems}',
                       style: const TextStyle(fontSize: 12, color: Colors.white),
                     ),
                   ),
@@ -386,13 +386,13 @@ class _DesktopNavigationRailState extends State<_DesktopNavigationRail> {
           icon: widget.cart.isEmpty
               ? const Icon(Icons.shopping_cart_outlined)
               : Badge(
-                  label: Text('${widget.cart.totalQuantity}'),
+                  label: Text('${widget.cart.countOfItems}'),
                   child: const Icon(Icons.shopping_cart_outlined),
                 ),
           selectedIcon: widget.cart.isEmpty
               ? const Icon(Icons.shopping_cart)
               : Badge(
-                  label: Text('${widget.cart.totalQuantity}'),
+                  label: Text('${widget.cart.countOfItems}'),
                   child: const Icon(Icons.shopping_cart),
                 ),
           label: const Text('Cart'),

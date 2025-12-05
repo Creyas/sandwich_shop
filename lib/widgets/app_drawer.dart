@@ -168,7 +168,7 @@ class _AppDrawerState extends State<AppDrawer> {
                     backgroundColor: Colors.orange,
                     radius: 12,
                     child: Text(
-                      '${widget.cart.totalQuantity}',
+                      '${widget.cart.countOfItems}',
                       style: const TextStyle(
                         fontSize: 12,
                         color: Colors.white,

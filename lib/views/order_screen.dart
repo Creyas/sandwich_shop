@@ -319,7 +319,7 @@ class _OrderScreenState extends State<OrderScreen> {
         // View Cart button in AppBar
         IconButton(
           icon: Badge(
-            label: Text('${widget.cart.totalQuantity}'),
+            label: Text('${widget.cart.countOfItems}'),
             isLabelVisible: !widget.cart.isEmpty,
             child: const Icon(Icons.shopping_cart),
           ),
