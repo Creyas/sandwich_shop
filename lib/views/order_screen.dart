@@ -6,11 +6,13 @@ import 'package:sandwich_shop/views/auth_screen.dart';
 import 'package:sandwich_shop/views/about_screen.dart';
 import 'package:sandwich_shop/views/cart_screen.dart';
 import 'package:sandwich_shop/models/cart.dart';
+import '../widgets/base_scaffold.dart';
 
 class OrderScreen extends StatefulWidget {
   final int maxQuantity;
+  final Cart cart;
 
-  const OrderScreen({super.key, this.maxQuantity = 10});
+  const OrderScreen({super.key, this.maxQuantity = 10, required this.cart});
 
   @override
   State<OrderScreen> createState() {
@@ -19,7 +21,6 @@ class OrderScreen extends StatefulWidget {
 }
 
 class _OrderScreenState extends State<OrderScreen> {
-  final Cart _cart = Cart();
   final TextEditingController _notesController = TextEditingController();
 
   SandwichType _selectedSandwichType = SandwichType.veggieDelight;
@@ -52,7 +53,7 @@ class _OrderScreenState extends State<OrderScreen> {
       );
 
       setState(() {
-        _cart.add(sandwich, quantity: _quantity);
+        widget.cart.add(sandwich, quantity: _quantity);
       });
 
       String sizeText;
@@ -84,7 +85,7 @@ class _OrderScreenState extends State<OrderScreen> {
     Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (BuildContext context) => CartScreen(cart: _cart),
+        builder: (BuildContext context) => CartScreen(cart: widget.cart),
       ),
     );
   }
@@ -207,26 +208,15 @@ class _OrderScreenState extends State<OrderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Order Sandwich', style: heading1),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.info_outline),
-            onPressed: _navigateToAboutScreen,
-            tooltip: 'About',
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _showLogoutConfirmation,
-            tooltip: 'Sign Out',
-          ),
-        ],
-      ),
-      body: Center(
+    return BaseScaffold(
+      title: 'Sandwich Shop - Order',
+      currentScreen: 'Home',
+      cart: widget.cart,
+      body: SafeArea(
         child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
                 height: 300,
@@ -315,7 +305,7 @@ class _OrderScreenState extends State<OrderScreen> {
               ),
               const SizedBox(height: 20),
               Text(
-                'Cart: ${_cart.countOfItems} items - £${_cart.totalPrice.toStringAsFixed(2)}',
+                'Cart: ${widget.cart.countOfItems} items - £${widget.cart.totalPrice.toStringAsFixed(2)}',
                 style: normalText,
                 textAlign: TextAlign.center,
               ),
@@ -324,6 +314,25 @@ class _OrderScreenState extends State<OrderScreen> {
           ),
         ),
       ),
+      actions: [
+        // View Cart button in AppBar
+        IconButton(
+          icon: Badge(
+            label: Text('${widget.cart.totalQuantity}'),
+            isLabelVisible: !widget.cart.isEmpty,
+            child: const Icon(Icons.shopping_cart),
+          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CartScreen(cart: widget.cart),
+              ),
+            );
+          },
+          tooltip: 'View Cart',
+        ),
+      ],
     );
   }
 }

@@ -5,6 +5,7 @@ import 'package:sandwich_shop/models/cart.dart';
 import 'package:sandwich_shop/models/sandwich.dart';
 import 'package:sandwich_shop/repositories/pricing_repository.dart';
 import 'package:sandwich_shop/views/checkout_screen.dart';
+import '../widgets/base_scaffold.dart';
 
 class CartScreen extends StatefulWidget {
   final Cart cart;
@@ -79,11 +80,72 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Your Cart'),
-      ),
-      body: widget.cart.isEmpty ? _buildEmptyCartState() : _buildCartContent(),
+    return BaseScaffold(
+      title: 'Your Cart',
+      currentScreen: 'Cart',
+      cart: widget.cart,
+      body: widget.cart.isEmpty
+          ? _buildEmptyCartState()
+          : Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: widget.cart.items.length,
+                    itemBuilder: (context, index) {
+                      final entry = widget.cart.items.entries.elementAt(index);
+                      return Column(
+                        children: [
+                          Text(entry.key.name, style: heading2),
+                          Text(
+                            '${_getSizeText(entry.key.isFootlong)} on ${entry.key.breadType.name} bread',
+                            style: normalText,
+                          ),
+                          Text(
+                            'Qty: ${entry.value} - £${_getItemPrice(entry.key, entry.value).toStringAsFixed(2)}',
+                            style: normalText,
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+                Text(
+                  'Total: £${widget.cart.totalPrice.toStringAsFixed(2)}',
+                  style: heading2,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                StyledButton(
+                  onPressed: _navigateToCheckout,
+                  icon: Icons.payment,
+                  label: 'Checkout',
+                  backgroundColor: Colors.orange,
+                ),
+                const SizedBox(height: 20),
+                StyledButton(
+                  onPressed: _goBack,
+                  icon: Icons.arrow_back,
+                  label: 'Back to Order',
+                  backgroundColor: Colors.grey,
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+      actions: widget.cart.isEmpty
+          ? null
+          : [
+              // Clear Cart button in AppBar
+              TextButton.icon(
+                onPressed: _showClearCartDialog,
+                icon: const Icon(Icons.clear_all, color: Colors.white),
+                label: const Text(
+                  'Clear Cart',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
     );
   }
 
@@ -124,62 +186,32 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  /// Builds the cart content when items exist
-  Widget _buildCartContent() {
-    return Center(
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 20),
-            for (MapEntry<Sandwich, int> entry in widget.cart.items.entries)
-              Column(
-                children: [
-                  Text(entry.key.name, style: heading2),
-                  Text(
-                    '${_getSizeText(entry.key.isFootlong)} on ${entry.key.breadType.name} bread',
-                    style: normalText,
-                  ),
-                  Text(
-                    'Qty: ${entry.value} - £${_getItemPrice(entry.key, entry.value).toStringAsFixed(2)}',
-                    style: normalText,
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              ),
-            Text(
-              'Total: £${widget.cart.totalPrice.toStringAsFixed(2)}',
-              style: heading2,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
-            Builder(
-              builder: (BuildContext context) {
-                final bool cartHasItems = widget.cart.items.isNotEmpty;
-                if (cartHasItems) {
-                  return StyledButton(
-                    onPressed: _navigateToCheckout,
-                    icon: Icons.payment,
-                    label: 'Checkout',
-                    backgroundColor: Colors.orange,
-                  );
-                } else {
-                  return const SizedBox.shrink();
-                }
+  void _showClearCartDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Clear Cart'),
+          content: const Text('Are you sure you want to clear the cart?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
               },
+              child: const Text('Cancel'),
             ),
-            const SizedBox(height: 20),
-            const SizedBox(height: 20),
-            StyledButton(
-              onPressed: _goBack,
-              icon: Icons.arrow_back,
-              label: 'Back to Order',
-              backgroundColor: Colors.grey,
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  widget.cart.clear();
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Clear'),
             ),
-            const SizedBox(height: 20),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 }

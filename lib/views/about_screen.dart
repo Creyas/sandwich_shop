@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
+import '../widgets/base_scaffold.dart';
+import '../models/cart.dart';
 
 class AboutScreen extends StatelessWidget {
-  const AboutScreen({super.key});
+  final Cart? cart;
+
+  const AboutScreen({Key? key, this.cart}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('About Us', style: heading1),
-      ),
-      body: const Padding(
-        padding: EdgeInsets.all(16.0),
+    // If cart is not provided, create a temporary empty one for navigation
+    final cartInstance = cart ?? Cart();
+
+    return BaseScaffold(
+      title: 'About Us',
+      currentScreen: 'About',
+      cart: cartInstance,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
