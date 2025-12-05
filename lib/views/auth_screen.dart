@@ -4,6 +4,7 @@ import 'package:sandwich_shop/widgets/custom_button.dart';
 import 'package:sandwich_shop/widgets/custom_text_field.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/views/order_screen.dart';
+import '../models/cart.dart';
 
 /// Authentication screen with Sign In and Sign Up tabs.
 ///
@@ -131,7 +132,7 @@ class _AuthScreenState extends State<AuthScreen>
       if (user != null) {
         // Success - navigate to OrderScreen
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const OrderScreen()),
+          MaterialPageRoute(builder: (context) => OrderScreen()),
         );
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -254,7 +255,7 @@ class _AuthScreenState extends State<AuthScreen>
       if (user != null) {
         // Success - navigate to OrderScreen
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const OrderScreen()),
+          MaterialPageRoute(builder: (context) => OrderScreen()),
         );
 
         ScaffoldMessenger.of(context).showSnackBar(

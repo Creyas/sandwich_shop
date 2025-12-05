@@ -12,7 +12,8 @@ class OrderScreen extends StatefulWidget {
   final int maxQuantity;
   final Cart cart;
 
-  const OrderScreen({super.key, this.maxQuantity = 10, required this.cart});
+  OrderScreen({super.key, this.maxQuantity = 10, Cart? cart})
+      : cart = cart ?? Cart();
 
   @override
   State<OrderScreen> createState() {
@@ -346,32 +347,32 @@ class StyledButton extends StatelessWidget {
 
   final Color backgroundColor;
 
-  const StyledButton({
-    super.key,
+    super.key,Button({
     required this.onPressed,
-    required this.icon,
+    required this.icon,ssed,
     required this.label,
     required this.backgroundColor,
+  });equired this.backgroundColor,
   });
-
   @override
   Widget build(BuildContext context) {
     ButtonStyle myButtonStyle = ElevatedButton.styleFrom(
-      backgroundColor: backgroundColor,
-      foregroundColor: Colors.white,
-      textStyle: normalText,
+      backgroundColor: backgroundColor,dButton.styleFrom(
+      foregroundColor: Colors.white,or,
+      textStyle: normalText,s.white,
+    );textStyle: normalText,
     );
-
     return ElevatedButton(
       onPressed: onPressed,
       style: myButtonStyle,
-      child: Row(
+      child: Row(ttonStyle,
         children: [
           Icon(icon),
           const SizedBox(width: 8),
-          Text(label),
-        ],
-      ),
-    );
-  }
+          Text(label),ox(width: 8),
+        ],Text(label),
+      ),],
+    );),
+  } );
+} }
 }

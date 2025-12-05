@@ -72,7 +72,7 @@ class AuthenticationWrapper extends StatelessWidget {
         // Check if user session exists
         if (snapshot.hasData && snapshot.data != null) {
           // User is signed in - go to OrderScreen
-          return const OrderScreen();
+          return OrderScreen();
         } else {
           // No session - show AuthScreen
           return const AuthScreen();

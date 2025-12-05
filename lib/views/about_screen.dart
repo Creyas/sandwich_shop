@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sandwich_shop/views/app_styles.dart';
 import '../widgets/base_scaffold.dart';
 import '../models/cart.dart';
 
@@ -28,6 +27,20 @@ class AboutScreen extends StatelessWidget {
               'We are a family-owned business dedicated to serving the best sandwiches in town. '
               'Our commitment to quality ingredients and exceptional service makes us your go-to destination for delicious meals.',
               style: normalText,
+            ),
+            const Text(
+              'About Sandwich Shop',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Welcome to our Sandwich Shop! We serve delicious, freshly made sandwiches with quality ingredients.',
+              style: TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Our mission is to provide the best sandwiches in town with friendly service and a smile.',
+              style: TextStyle(fontSize: 16),
             ),
           ],
         ),
