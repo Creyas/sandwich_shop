@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:sandwich_shop/models/order.dart';
+import 'package:sandwich_shop/models/sandwich.dart';
+import 'package:sandwich_shop/services/auth_service.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
+import 'package:sandwich_shop/views/auth_screen.dart';
 import 'package:sandwich_shop/views/cart_screen.dart';
 import 'package:sandwich_shop/models/cart.dart';
-import 'package:sandwich_shop/models/sandwich.dart';
 
 class OrderScreen extends StatefulWidget {
   final int maxQuantity;
@@ -23,6 +26,8 @@ class _OrderScreenState extends State<OrderScreen> {
   bool _isFootlong = true;
   BreadType _selectedBreadType = BreadType.white;
   int _quantity = 1;
+
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -119,6 +124,80 @@ class _OrderScreenState extends State<OrderScreen> {
     return sandwich.image;
   }
 
+  void _showLogoutConfirmation() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Sign Out'),
+        content: const Text('Are you sure you want to sign out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop(); // Close dialog
+              await _handleLogout();
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red,
+            ),
+            child: const Text('Sign Out'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handleLogout() async {
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    try {
+      // Sign out
+      await _authService.signOut();
+
+      if (!mounted) return;
+
+      // Close loading indicator
+      Navigator.of(context).pop();
+
+      // Navigate to AuthScreen and remove all previous routes
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const AuthScreen()),
+        (route) => false,
+      );
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Signed out successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      // Close loading indicator
+      Navigator.of(context).pop();
+
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error signing out: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,6 +213,18 @@ class _OrderScreenState extends State<OrderScreen> {
           'Sandwich Counter',
           style: heading1,
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: _navigateToAboutScreen,
+            tooltip: 'About',
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: _showLogoutConfirmation,
+            tooltip: 'Sign Out',
+          ),
+        ],
       ),
       body: Center(
         child: SingleChildScrollView(
