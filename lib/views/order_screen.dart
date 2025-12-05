@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sandwich_shop/models/order.dart';
 import 'package:sandwich_shop/models/sandwich.dart';
 import 'package:sandwich_shop/services/auth_service.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
