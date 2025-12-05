@@ -17,8 +17,51 @@ void main() {
 
       await tester.pumpWidget(app);
 
-      expect(find.text('Cart View'), findsOneWidget);
-      expect(find.text('Total: £0.00'), findsOneWidget);
+      // Verify empty cart state is displayed
+      expect(find.text('Your cart is empty'), findsOneWidget);
+      expect(find.byIcon(Icons.shopping_cart_outlined), findsOneWidget);
+      expect(find.text('Start Shopping'), findsOneWidget);
+
+      // Verify cart items are not displayed
+      expect(find.text('Total: £0.00'), findsNothing);
+    });
+
+    testWidgets('navigates back when Start Shopping button is tapped',
+        (WidgetTester tester) async {
+      final Cart emptyCart = Cart();
+      final CartScreen cartScreen = CartScreen(cart: emptyCart);
+      final MaterialApp app = MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => Center(
+              child: ElevatedButton(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => cartScreen),
+                ),
+                child: const Text('Go to Cart'),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpWidget(app);
+
+      // Navigate to cart screen
+      await tester.tap(find.text('Go to Cart'));
+      await tester.pumpAndSettle();
+
+      // Verify we're on cart screen
+      expect(find.text('Your cart is empty'), findsOneWidget);
+
+      // Tap Start Shopping button
+      await tester.tap(find.text('Start Shopping'));
+      await tester.pumpAndSettle();
+
+      // Verify we navigated back
+      expect(find.text('Go to Cart'), findsOneWidget);
+      expect(find.text('Your cart is empty'), findsNothing);
     });
 
     testWidgets('displays cart items when cart has items',
@@ -38,11 +81,15 @@ void main() {
 
       await tester.pumpWidget(app);
 
-      expect(find.text('Cart View'), findsOneWidget);
+      // Verify cart items are displayed
       expect(find.text('Veggie Delight'), findsOneWidget);
       expect(find.text('Footlong on white bread'), findsOneWidget);
       expect(find.text('Qty: 2 - £22.00'), findsOneWidget);
       expect(find.text('Total: £22.00'), findsOneWidget);
+
+      // Verify empty cart state is not displayed
+      expect(find.text('Your cart is empty'), findsNothing);
+      expect(find.text('Start Shopping'), findsNothing);
     });
 
     testWidgets('displays multiple cart items correctly',
@@ -75,24 +122,6 @@ void main() {
       expect(find.text('Qty: 1 - £11.00'), findsOneWidget);
       expect(find.text('Qty: 3 - £21.00'), findsOneWidget);
       expect(find.text('Total: £32.00'), findsOneWidget);
-    });
-
-    testWidgets('back button navigates back', (WidgetTester tester) async {
-      final Cart cart = Cart();
-      final CartScreen cartScreen = CartScreen(cart: cart);
-      final MaterialApp app = MaterialApp(
-        home: cartScreen,
-      );
-
-      await tester.pumpWidget(app);
-
-      final Finder backButtonFinder =
-          find.widgetWithText(StyledButton, 'Back to Order');
-      expect(backButtonFinder, findsOneWidget);
-
-      final StyledButton backButton =
-          tester.widget<StyledButton>(backButtonFinder);
-      expect(backButton.onPressed, isNotNull);
     });
 
     testWidgets('displays logo in app bar', (WidgetTester tester) async {
