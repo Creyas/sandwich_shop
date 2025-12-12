@@ -14,6 +14,14 @@ A feature-rich Flutter application for ordering sandwiches with a modern, respon
 - **🖥️ Cross-Platform**: Runs on Windows, macOS, Linux, Web, Android, and iOS
 - **🧪 Comprehensive Testing**: 210+ tests with 100% pass rate including unit and integration tests
 
+## 🌐 Live Demo
+
+**Try it now**: [https://sandwich-shop-412f1.web.app](https://sandwich-shop-412f1.web.app)
+
+The app is deployed on Firebase Hosting and available for immediate testing. No installation required - just click the link and start ordering!
+
+**Firebase Console**: [Project Dashboard](https://console.firebase.google.com/project/sandwich-shop-412f1/overview)
+
 ## 📁 Project Structure
 
 ```
@@ -253,6 +261,10 @@ flutter build appbundle --release
 flutter build web --release
 # Output: build/web/
 
+# Deploy to Firebase Hosting (after building web)
+firebase deploy
+# Live at: https://sandwich-shop-412f1.web.app
+
 # iOS (macOS with Xcode only)
 flutter build ipa --release
 # Output: build/ios/ipa/
@@ -478,6 +490,12 @@ await tester.pumpAndSettle(); // Wait for animations
 - **integration_test**: E2E testing framework
 - **flutter_lints** `^2.0.0`: Code analysis and linting
 - **sqflite_common_ffi** `^2.3.0`: Desktop database support for testing
+
+### Deployment
+
+- **Firebase Hosting**: Production web deployment
+  - Live URL: [https://sandwich-shop-412f1.web.app](https://sandwich-shop-412f1.web.app)
+  - Console: [Firebase Dashboard](https://console.firebase.google.com/project/sandwich-shop-412f1/overview)
 
 ## 💬 Support
 
