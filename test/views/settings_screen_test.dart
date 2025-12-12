@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sandwich_shop/views/settings_screen.dart';
+import 'package:sandwich_shop/views/common_widgets.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -43,7 +44,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(AppBar), findsOneWidget);
+      expect(find.byType(CommonAppBar), findsOneWidget);
       expect(find.byType(Image), findsOneWidget);
     });
 
