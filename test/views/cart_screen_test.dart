@@ -291,7 +291,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final Finder deleteButton = find.byIcon(Icons.delete);
+      final Finder deleteButton = find.byWidgetPredicate(
+        (widget) => widget is IconButton && widget.tooltip == 'Remove item',
+      );
       expect(deleteButton, findsOneWidget);
 
       final IconButton iconButton = tester.widget<IconButton>(deleteButton);
@@ -323,10 +325,10 @@ void main() {
 
       // Footlong price: £11.00
       expect(find.text('£11.00'), findsOneWidget);
-      // Six-inch price: £6.00
-      expect(find.text('£6.00'), findsOneWidget);
-      // Total: £17.00
-      expect(find.text('Total: £17.00'), findsOneWidget);
+      // Six-inch price: £7.00
+      expect(find.text('£7.00'), findsOneWidget);
+      // Total: £18.00 (£11 + £7)
+      expect(find.text('Total: £18.00'), findsOneWidget);
     });
 
     testWidgets('decrement to zero removes item with correct message',

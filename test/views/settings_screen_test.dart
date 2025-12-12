@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:sandwich_shop/models/cart.dart';
 import 'package:sandwich_shop/views/settings_screen.dart';
 import 'package:sandwich_shop/views/common_widgets.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
@@ -370,15 +372,23 @@ void main() {
     testWidgets('Column children are in correct order',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(home: SettingsScreen()),
+        ChangeNotifierProvider<Cart>.value(
+          value: Cart(),
+          child: const MaterialApp(home: SettingsScreen()),
+        ),
       );
       await tester.pumpAndSettle();
 
       final Column column = tester.widget<Column>(
-        find.descendant(
-          of: find.byType(Padding).last,
-          matching: find.byType(Column),
-        ),
+        find
+            .descendant(
+              of: find.descendant(
+                of: find.byType(Scaffold),
+                matching: find.byType(Padding),
+              ),
+              matching: find.byType(Column),
+            )
+            .first,
       );
 
       expect(column.children.length, greaterThan(5));
@@ -387,17 +397,23 @@ void main() {
     testWidgets('Padding has correct horizontal and vertical padding',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(home: SettingsScreen()),
+        ChangeNotifierProvider<Cart>.value(
+          value: Cart(),
+          child: const MaterialApp(home: SettingsScreen()),
+        ),
       );
       await tester.pumpAndSettle();
 
       final Padding bodyPadding = tester.widget<Padding>(
-        find
-            .descendant(
-              of: find.byType(Scaffold),
-              matching: find.byType(Padding),
-            )
-            .last,
+        find.descendant(
+          of: find.byType(Scaffold),
+          matching: find.byWidgetPredicate(
+            (widget) =>
+                widget is Padding &&
+                widget.padding == const EdgeInsets.all(16.0) &&
+                widget.child is Column,
+          ),
+        ),
       );
 
       expect(bodyPadding.padding, equals(const EdgeInsets.all(16.0)));

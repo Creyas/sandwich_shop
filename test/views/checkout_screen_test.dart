@@ -52,7 +52,12 @@ void main() {
       expect(find.text('Order Summary'), findsOneWidget);
       expect(find.text('2x Veggie Delight'), findsOneWidget);
       expect(find.text('Total:'), findsOneWidget);
-      expect(find.text('£22.00'), findsOneWidget);
+      expect(
+          find.descendant(
+            of: find.widgetWithText(Row, 'Total:'),
+            matching: find.text('£22.00'),
+          ),
+          findsOneWidget);
       expect(find.byType(Divider), findsOneWidget);
       expect(find.text('2'), findsOneWidget); // cart count
     });
@@ -382,6 +387,9 @@ void main() {
         ),
       );
       expect(centerWidget, isNotNull);
+
+      // Wait for the payment processing to complete
+      await tester.pumpAndSettle();
     });
 
     testWidgets('displays multiple items with spacing',

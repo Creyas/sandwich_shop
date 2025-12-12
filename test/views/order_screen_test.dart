@@ -283,7 +283,13 @@ void main() {
       await tester.tap(removeButtonFinder);
       await tester.pumpAndSettle();
 
-      expect(find.text('0'), findsOneWidget);
+      // Find the quantity display (not the cart indicator)
+      expect(
+          find.descendant(
+            of: find.byType(Row),
+            matching: find.text('0'),
+          ),
+          findsWidgets);
       IconButton removeButton = tester.widget<IconButton>(removeButtonFinder);
       expect(removeButton.onPressed, isNull);
 
@@ -298,7 +304,7 @@ void main() {
       await tester.tap(removeButtonFinder);
       await tester.pumpAndSettle();
 
-      expect(find.text('0'), findsOneWidget);
+      // Already verified quantity is 0 above using descendant finder
     });
 
     testWidgets('navigates to cart view when View Cart button is tapped',

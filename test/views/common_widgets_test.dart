@@ -163,12 +163,12 @@ void main() {
       await tester.pumpAndSettle();
 
       final Padding logoPadding = tester.widget<Padding>(
-        find
-            .descendant(
-              of: find.byType(AppBar),
-              matching: find.byType(Padding),
-            )
-            .first,
+        find.descendant(
+          of: find.byType(AppBar),
+          matching: find.byWidgetPredicate(
+            (widget) => widget is Padding && widget.child is SizedBox,
+          ),
+        ),
       );
 
       expect(logoPadding.padding, equals(const EdgeInsets.all(8.0)));

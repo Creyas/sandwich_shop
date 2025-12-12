@@ -134,11 +134,10 @@ void main() {
         (WidgetTester tester) async {
       Map<String, String>? result;
       final Cart cart = Cart();
-      const ProfileScreen profileScreen = ProfileScreen();
-      final MaterialApp app = MaterialApp(
-        home: ChangeNotifierProvider<Cart>.value(
-          value: cart,
-          child: Builder(
+      final Widget app = ChangeNotifierProvider<Cart>.value(
+        value: cart,
+        child: MaterialApp(
+          home: Builder(
             builder: (BuildContext context) {
               return Scaffold(
                 body: ElevatedButton(
@@ -146,7 +145,8 @@ void main() {
                     result = await Navigator.push<Map<String, String>>(
                       context,
                       MaterialPageRoute<Map<String, String>>(
-                        builder: (BuildContext context) => profileScreen,
+                        builder: (BuildContext context) =>
+                            const ProfileScreen(),
                       ),
                     );
                   },
@@ -182,11 +182,10 @@ void main() {
         (WidgetTester tester) async {
       Map<String, String>? result;
       final Cart cart = Cart();
-      const ProfileScreen profileScreen = ProfileScreen();
-      final MaterialApp app = MaterialApp(
-        home: ChangeNotifierProvider<Cart>.value(
-          value: cart,
-          child: Builder(
+      final Widget app = ChangeNotifierProvider<Cart>.value(
+        value: cart,
+        child: MaterialApp(
+          home: Builder(
             builder: (BuildContext context) {
               return Scaffold(
                 body: ElevatedButton(
@@ -194,7 +193,8 @@ void main() {
                     result = await Navigator.push<Map<String, String>>(
                       context,
                       MaterialPageRoute<Map<String, String>>(
-                        builder: (BuildContext context) => profileScreen,
+                        builder: (BuildContext context) =>
+                            const ProfileScreen(),
                       ),
                     );
                   },
@@ -273,11 +273,10 @@ void main() {
         (WidgetTester tester) async {
       Map<String, String>? result;
       final Cart cart = Cart();
-      const ProfileScreen profileScreen = ProfileScreen();
-      final MaterialApp app = MaterialApp(
-        home: ChangeNotifierProvider<Cart>.value(
-          value: cart,
-          child: Builder(
+      final Widget app = ChangeNotifierProvider<Cart>.value(
+        value: cart,
+        child: MaterialApp(
+          home: Builder(
             builder: (BuildContext context) {
               return Scaffold(
                 body: ElevatedButton(
@@ -285,7 +284,8 @@ void main() {
                     result = await Navigator.push<Map<String, String>>(
                       context,
                       MaterialPageRoute<Map<String, String>>(
-                        builder: (BuildContext context) => profileScreen,
+                        builder: (BuildContext context) =>
+                            const ProfileScreen(),
                       ),
                     );
                   },
