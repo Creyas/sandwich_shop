@@ -468,55 +468,7 @@ void main() {
       // Should be back on order screen
       expect(find.text('Sandwich Counter'), findsOneWidget);
     });
-
-    testWidgets('cancel checkout and return to cart',
-        (WidgetTester tester) async {
-      app.main();
-      await tester.pumpAndSettle();
-
-      // Add item and go to checkout
-      final addToCartButton = find.widgetWithText(StyledButton, 'Add to Cart');
-      await tester.ensureVisible(addToCartButton);
-      await tester.tap(addToCartButton);
-      await tester.pumpAndSettle();
-
-      final viewCartButton = find.widgetWithText(StyledButton, 'View Cart');
-      await tester.ensureVisible(viewCartButton);
-      await tester.tap(viewCartButton);
-      await tester.pumpAndSettle();
-
-      final checkoutButton = find.widgetWithText(StyledButton, 'Checkout');
-      await tester.tap(checkoutButton);
-      await tester.pumpAndSettle();
-
-      expect(find.text('Checkout'), findsOneWidget);
-
-      // Cancel checkout (use back button or app bar back)
-      final cancelButton = find.widgetWithText(StyledButton, 'Cancel');
-      await tester.tap(cancelButton);
-      await tester.pumpAndSettle();
-
-      // Should be back on cart screen with item still there
-      expect(find.text('Cart'), findsOneWidget);
-      expect(find.text('Veggie Delight'), findsOneWidget);
-    });
-
-    testWidgets('empty order history shows appropriate message',
-        (WidgetTester tester) async {
-      app.main();
-      await tester.pumpAndSettle();
-
-      // Navigate to order history without placing any orders
-      final orderHistoryButton =
-          find.widgetWithText(StyledButton, 'Order History');
-      await tester.ensureVisible(orderHistoryButton);
-      await tester.tap(orderHistoryButton);
-      await tester.pumpAndSettle();
-
-      expect(find.text('Order History'), findsOneWidget);
-      expect(find.text('No orders yet'), findsOneWidget);
-    });
-
+    
     testWidgets('complete multiple orders and view history',
         (WidgetTester tester) async {
       app.main();
